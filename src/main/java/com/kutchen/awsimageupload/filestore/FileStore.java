@@ -3,7 +3,6 @@ package com.kutchen.awsimageupload.filestore;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,10 +30,10 @@ public class FileStore {
                 map.forEach(metadata::addUserMetadata);
             }
         });
-        try{
+        try {
             s3.putObject(path, fileName, inputStream, metadata);
         } catch (AmazonServiceException e) {
             throw new IllegalStateException("Failed to store file to s3", e);
         }
-    };
+    }
 }
