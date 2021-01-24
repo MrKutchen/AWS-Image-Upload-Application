@@ -21,6 +21,7 @@ public class FakeUserProfileDataStore {
         USER_PROFILES.add(new UserProfile(UUID.fromString("f925ec2d-f782-4b07-b8b4-3f42371606df"), "juncranker", null));
     }
 
+    //returning all profiles in the static initializer
     public List<UserProfile> getUserProfiles() {
         return USER_PROFILES;
     }

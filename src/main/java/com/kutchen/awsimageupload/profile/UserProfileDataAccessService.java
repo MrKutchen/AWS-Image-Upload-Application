@@ -11,12 +11,14 @@ public class UserProfileDataAccessService {
 
     private final FakeUserProfileDataStore fakeUserProfileDataStore;
 
+    //constructor injection
     @Autowired
     public UserProfileDataAccessService(FakeUserProfileDataStore fakeUserProfileDataStore) {
         this.fakeUserProfileDataStore = fakeUserProfileDataStore;
     }
 
     List<UserProfile> getUserProfiles() {
+        //calling method to get userProfiles
         return fakeUserProfileDataStore.getUserProfiles();
     }
 

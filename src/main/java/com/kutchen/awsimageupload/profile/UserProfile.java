@@ -8,7 +8,8 @@ public class UserProfile {
 
     private final UUID userProfileId;
     private final String username;
-    private String userProfileImageLink; //S3 key for
+    //S3 key for
+    private String userProfileImageLink;
 
     public UserProfile(UUID userProfileId,
                        String username,
@@ -34,6 +35,7 @@ public class UserProfile {
         this.userProfileImageLink = userProfileImageLink;
     }
 
+    //overriding equals to equate the properties of the UserProfile
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -44,6 +46,7 @@ public class UserProfile {
                 Objects.equals(userProfileImageLink, that.userProfileImageLink);
     }
 
+    //calling the hashCode function to hash object values
     @Override
     public int hashCode() {
         return Objects.hash(userProfileId, username, userProfileImageLink);

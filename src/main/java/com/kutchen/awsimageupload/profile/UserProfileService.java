@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+//business logic
 @Service
 public class UserProfileService {
 
@@ -28,25 +29,30 @@ public class UserProfileService {
         this.fileStore = fileStore;
     }
 
+    //getting all userProfiles
     List<UserProfile> getUserProfiles() {
         return userProfileDataAccessService.getUserProfiles();
     }
 
+    //multi step method to upload an image to the userProfile
     void uploadUserProfileImage(UUID userProfileId, MultipartFile file) {
-        // 1. Check if image is not empty
+        //Call method to check if image is not empty
         isFileEmpty(file);
-        // 2. If file is an image
+        //Call method to see if file is an image
         isImage(file);
-        // 3. The user exists in our database
+        //create a variable with the user information
         UserProfile user = getUserProfileOrThrow(userProfileId);
 
-        // 4. Grab some metadata form file if any
-
+        //Create metadata variable by calling extractMetadata
         Map<String, String> metadata = extractMetaData(file);
 
-        // 5. Store the image in s3 and update database (userProfileImageLink) with s3 image link
-        String path = String.format("%s/%s", BucketName.PROFILE_IMAGE.getBucketName(), user.getUserProfileId());
+        //Store the image in s3 and update database (userProfileImageLink) with s3 image link
+        //create a path variable that has the name of the s3 bucket and the specific profile to store the metadata
+        String path = String.format("%s/%s", BucketName.PROFILE_IMAGE.getBucketName(),
+                user.getUserProfileId());
+        //create a filename variable
         String filename = String.format("%s-%s", file.getOriginalFilename(), UUID.randomUUID());
+        //try catch in cause of an exception
         try {
             fileStore.save(path, filename, Optional.of(metadata), file.getInputStream());
             user.setUserProfileImageLink(filename);
@@ -55,6 +61,7 @@ public class UserProfileService {
         }
     }
 
+    //download image from the userprofile in the s3 bucket
     public byte[] downloadUserProfileImage(UUID userProfileId) {
         UserProfile user = getUserProfileOrThrow(userProfileId);
 
@@ -62,12 +69,14 @@ public class UserProfileService {
                 BucketName.PROFILE_IMAGE.getBucketName(),
                 user.getUserProfileId());
 
+        //return the image from the s3 profile with mapping from the fileStore
         return user.getUserProfileImageLink()
                 .map(key -> fileStore.download(path, key))
                 .orElse(new byte[0]);
     }
 
 
+    //get the metadata from the file by placing the information in a Map then return that information
     private Map<String, String> extractMetaData(MultipartFile file) {
         Map<String, String> metadata = new HashMap<>();
         metadata.put("Content-Type", file.getContentType());
@@ -75,6 +84,7 @@ public class UserProfileService {
         return metadata;
     }
 
+    //return the specific UserProfile by filtering the UserProfiles
     private UserProfile getUserProfileOrThrow(UUID userProfileId) {
         return userProfileDataAccessService
                 .getUserProfiles()
@@ -84,8 +94,16 @@ public class UserProfileService {
                 .orElseThrow(() -> new IllegalStateException(String.format("User profile %s not found", userProfileId)));
     }
 
+    //checking to see if the image is a specific format/type
+    //
     private void isImage(MultipartFile file) {
+        //if not one of these throw an exception
         if (!Arrays.asList(
+                //Returns the MIME type for the data.
+                //This is a simple access method that returns the value of the mimeType attribute.
+                //A media type (also known as a Multipurpose Internet Mail Extensions or MIME type)
+                //is a standard that indicates the nature and format of a document,
+                //file, or assortment of bytes.
                 ContentType.IMAGE_JPEG.getMimeType(),
                 ContentType.IMAGE_PNG.getMimeType(),
                 ContentType.IMAGE_GIF.getMimeType()).contains(file.getContentType())) {
@@ -93,6 +111,7 @@ public class UserProfileService {
         }
     }
 
+    //check to see if the file is empty, if it is throw an exception
     private void isFileEmpty(MultipartFile file) {
         if (file.isEmpty()) {
             throw new IllegalStateException("Cannot upload empty file [ " + file.getSize() + "]");

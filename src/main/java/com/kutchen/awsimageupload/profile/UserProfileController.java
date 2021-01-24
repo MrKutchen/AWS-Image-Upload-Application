@@ -14,8 +14,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.UUID;
 
+//includes @RequestBody annotation with the controller annotation
 @RestController
+//maps the endpoints to this URI
 @RequestMapping("api/v1/user-profile")
+//enables the API to communicate with the client/frontend
 @CrossOrigin("*")
 public class UserProfileController {
 
@@ -26,23 +29,33 @@ public class UserProfileController {
         this.userProfileService = userProfileService;
     }
 
+    //gets all profiles
     @GetMapping
     public List<UserProfile> getUserProfile() {
         return userProfileService.getUserProfiles();
     }
 
+    //maps what information will be posted when using this method
     @PostMapping(
             path = "{userProfileId}/image/upload",
+            //consumes the form data
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            //returns a json to be used with database
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+
+    //@PathVariables extract values from the URI path
+    //@RequestParams extract values from the query string
     public void uploadProfileImage(@PathVariable("userProfileId")UUID userProfileId,
                                    @RequestParam("file") MultipartFile file) {
+        //calling method to upload image
         userProfileService.uploadUserProfileImage(userProfileId, file);
     }
 
     @GetMapping("{userProfileId}/image/download")
+    //extracting value from the URI for the get method
     public byte[] downloadUserProfileImage(@PathVariable("userProfileId")UUID userProfileId) {
+        //calling method to download image
         return userProfileService.downloadUserProfileImage(userProfileId);
     }
 }
